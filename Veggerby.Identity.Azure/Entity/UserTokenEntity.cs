@@ -21,6 +21,8 @@ namespace Veggerby.Identity.Azure.Entity
 
         public string Purpose { get; set; }
 
-        public DateTime IssueDateTimeUtc { get; set; }
+        public DateTime IssueDateUtc { get; set; }
+
+        public int ValidateCount { get; set; }
     }
 }

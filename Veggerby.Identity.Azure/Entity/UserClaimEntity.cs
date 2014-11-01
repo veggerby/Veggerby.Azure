@@ -1,4 +1,5 @@
-﻿using Microsoft.WindowsAzure.Storage.Table;
+﻿using System;
+using Microsoft.WindowsAzure.Storage.Table;
 
 namespace Veggerby.Identity.Azure.Entity
 {
@@ -14,5 +15,7 @@ namespace Veggerby.Identity.Azure.Entity
         public string ClaimType { get; set; }
 
         public string ClaimValue { get; set; }
+
+        public DateTime CreatedDateUtc { get; set; }
     }
 }

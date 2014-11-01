@@ -12,13 +12,22 @@ namespace Veggerby.Identity.Azure.Entity
         }
 
         public string InternalId { get; set; }
+
         public string UserName { get; set; }
 
         public string PasswordHash { get; set; }
         public string SecurityStamp { get; set; }
 
-        public string EmailAddress { get; set; }
-        public string DisplayName { get; set; }
-        public DateTime LastLogin { get; set; }
+        public DateTime CreatedDateUtc { get; set; }
+        public DateTime LastAccessDateUtc { get; set; }
+
+        public DateTime? LastAccessFailureDateUtc { get; set; }
+        public int? AccessFailedCount { get; set; }
+
+        public DateTime? LockOutEndDateUtc { get; set; }
+        public bool IsLockedOut { get; set; }
+
+        public string Email { get; set; }
+        public bool IsEmailConfirmed { get; set; }
     }
 }

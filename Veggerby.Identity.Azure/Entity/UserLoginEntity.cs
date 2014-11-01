@@ -1,4 +1,5 @@
-﻿using Microsoft.WindowsAzure.Storage.Table;
+﻿using System;
+using Microsoft.WindowsAzure.Storage.Table;
 
 namespace Veggerby.Identity.Azure.Entity
 {
@@ -19,5 +20,9 @@ namespace Veggerby.Identity.Azure.Entity
         }
 
         public virtual string ProviderKey { get; set; }
+
+        public DateTime CreatedDateUtc { get; set; }
+
+        public bool IsEnabled { get; set; }
     }
 }
