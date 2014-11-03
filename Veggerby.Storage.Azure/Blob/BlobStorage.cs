@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Runtime.Serialization;
 using System.Threading.Tasks;
 using Microsoft.WindowsAzure.Storage;
 using Microsoft.WindowsAzure.Storage.Blob;
@@ -11,7 +10,7 @@ namespace Veggerby.Storage.Azure.Blob
 {
     public class BlobStorage : IBlobStorage
     {
-        private readonly CloudBlobContainer _BlobContainer;
+        private readonly CloudBlobContainer _blobContainer;
 
         public BlobStorage(string blobContainer, string connectionString = null, StorageInitializeManager storageInitializeManager = null)
         {
@@ -19,20 +18,20 @@ namespace Veggerby.Storage.Azure.Blob
                 ? CloudStorageAccount.Parse(connectionString)
                 : CloudStorageAccount.DevelopmentStorageAccount;
             var blobClient = storageAccount.CreateCloudBlobClient();
-            _BlobContainer = blobClient.GetContainerReference(blobContainer);
+            _blobContainer = blobClient.GetContainerReference(blobContainer);
 
             if (storageInitializeManager == null || storageInitializeManager.HasBeenInitialized(blobContainer))
             {
                 return;
             }
 
-            _BlobContainer.CreateIfNotExists();
+            _blobContainer.CreateIfNotExists();
             storageInitializeManager.SetAsInitialized(blobContainer);
         }
 
         protected CloudBlobContainer BlobContainer
         {
-            get { return _BlobContainer; }
+            get { return _blobContainer; }
         }
 
         private CloudBlockBlob GetBlockBlobReference(string directory, string filename)
@@ -61,10 +60,8 @@ namespace Veggerby.Storage.Azure.Blob
             return block.Uri;
         }
 
-        public async Task<Stream> GetAsync(string directory, string filename)
+        private async Task<Stream> GetAsync(CloudBlockBlob block)
         {
-            var block = GetBlockBlobReference(directory, filename);
-
             if (!(await block.ExistsAsync()))
             {
                 return null;
@@ -74,8 +71,20 @@ namespace Veggerby.Storage.Azure.Blob
 
             await block.DownloadToStreamAsync(stream);
 
-            stream.Position = 0;
+            stream.Seek(0, SeekOrigin.Begin);
             return stream;
+        }
+
+        public async Task<Stream> GetAsync(Uri uri)
+        {
+            var block = new CloudBlockBlob(uri);
+            return await GetAsync(block);
+        }
+
+        public async Task<Stream> GetAsync(string directory, string filename)
+        {
+            var block = GetBlockBlobReference(directory, filename);
+            return await GetAsync(block);
         }
 
         public async Task AddMetaDataAsync(string directory, string filename, IDictionary<string, string> metadata)
