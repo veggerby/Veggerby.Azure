@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
+using System.Runtime.Serialization;
 using System.Threading.Tasks;
 using Microsoft.WindowsAzure.Storage;
 using Microsoft.WindowsAzure.Storage.Blob;
@@ -28,11 +30,6 @@ namespace Veggerby.Storage.Azure.Blob
             storageInitializeManager.SetAsInitialized(blobContainer);
         }
 
-        public async Task InitializeAsync()
-        {
-            await BlobContainer.CreateIfNotExistsAsync();
-        } 
-
         protected CloudBlobContainer BlobContainer
         {
             get { return _BlobContainer; }
@@ -50,7 +47,6 @@ namespace Veggerby.Storage.Azure.Blob
         {
             var block = GetBlockBlobReference(directory, filename);
 
-            //stream.Position = 0;
             block.Properties.ContentType = contentType;
             if (metadata != null)
             {
@@ -124,6 +120,29 @@ namespace Veggerby.Storage.Azure.Blob
                 Properties = block.Properties,
                 Metadata = block.Metadata
             };
+        }
+
+        public async Task<IEnumerable<Uri>> ListAsync(string directory)
+        {
+            var blobDirectory = BlobContainer.GetDirectoryReference(directory);
+
+            var token = new BlobContinuationToken();
+            var segment = await blobDirectory.ListBlobsSegmentedAsync(token);
+
+            if (segment == null || segment.Results == null || !segment.Results.Any())
+            {
+                return Enumerable.Empty<Uri>();
+            }
+
+            var result = segment.Results.Select(x => x.Uri).ToList();
+
+            while (segment.ContinuationToken != null)
+            {
+                segment = await blobDirectory.ListBlobsSegmentedAsync(segment.ContinuationToken);
+                result.AddRange(segment.Results.Select(x => x.Uri));
+            }
+
+            return result;
         }
 
         public async Task<bool> DeleteAsync(string directory, string filename)

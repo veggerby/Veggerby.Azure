@@ -14,22 +14,6 @@ namespace Veggerby.Storage.Azure.Table.Query
             Query = new TableQuery<T>();
         }
 
-        public virtual IEnumerable<T> ExecuteOn(CloudTable table)
-        {
-            var token = new TableContinuationToken();
-            var segment = table.ExecuteQuerySegmented(Query, token);
-            while (token != null)
-            {
-                foreach (var result in segment)
-                {
-                    yield return result;
-                }
-
-                segment = table.ExecuteQuerySegmented(Query, token);
-                token = segment.ContinuationToken;
-            }
-        }
-
         public async virtual Task<IEnumerable<T>> ExecuteOnAsync(CloudTable table, int count = -1)
         {
             var token = new TableContinuationToken();

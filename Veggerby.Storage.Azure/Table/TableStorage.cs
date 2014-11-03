@@ -36,43 +36,9 @@ namespace Veggerby.Storage.Azure.Table
             storageInitializeManager.SetAsInitialized(tableName);
         }
 
-        public async Task InitializeAsync()
-        {
-            await Table.CreateIfNotExistsAsync();
-        }
-
         protected CloudTable Table
         {
             get { return _Table; }
-        }
-
-        protected string Execute(TableOperation operation)
-        {
-            var result = Table.Execute(operation);
-            return result.Etag;
-        }
-
-        protected T ExecuteItem(TableOperation operation)
-        {
-            var result = Table.Execute(operation);
-            return result.Result is T ? (T)result.Result : default(T);
-        }
-
-        public void ExecuteBatch(IEnumerable<T> entities, Func<T, TableOperation> operation, int batchSize = 100)
-        {
-            var list = entities as IList<T> ?? entities.ToList();
-            while (list.Any())
-            {
-                var batch = new TableBatchOperation();
-                foreach (var item in list.Take(batchSize))
-                {
-                    batch.Add(operation(item));
-                }
-
-                list = list.Skip(batchSize).ToList();
-
-                Table.ExecuteBatch(batch);
-            }
         }
 
         protected async Task<string> ExecuteAsync(TableOperation operation)
@@ -105,24 +71,9 @@ namespace Veggerby.Storage.Azure.Table
             }
         }
 
-        public virtual T Get(string partitionKey, string rowKey)
-        {
-            return ExecuteItem(TableOperation.Retrieve<T>(partitionKey, rowKey));
-        }
-
         public async virtual Task<T> GetAsync(string partitionKey, string rowKey)
         {
             return await ExecuteItemAsync(TableOperation.Retrieve<T>(partitionKey, rowKey));
-        }
-
-        public virtual string Insert(T entity)
-        {
-            return Execute(TableOperation.Insert(entity));
-        }
-
-        public virtual void Insert(IEnumerable<T> entities)
-        {
-            ExecuteBatch(entities, x => TableOperation.Insert(x));
         }
 
         public async virtual Task<string> InsertAsync(T entity)
@@ -135,24 +86,9 @@ namespace Veggerby.Storage.Azure.Table
             await ExecuteBatchAsync(entities, x => TableOperation.Insert(x));
         }
 
-        public virtual string Replace(T entity)
-        {
-            return Execute(TableOperation.Replace(entity));
-        }
-
         public async virtual Task<string> ReplaceAsync(T entity)
         {
             return await ExecuteAsync(TableOperation.Replace(entity));
-        }
-
-        public virtual string InsertOrReplace(T entity)
-        {
-            return Execute(TableOperation.InsertOrReplace(entity));
-        }
-
-        public virtual void InsertOrReplace(IEnumerable<T> entities)
-        {
-            ExecuteBatch(entities, x => TableOperation.InsertOrReplace(x));
         }
 
         public async virtual Task<string> InsertOrReplaceAsync(T entity)
@@ -165,18 +101,9 @@ namespace Veggerby.Storage.Azure.Table
             await ExecuteBatchAsync(entities, x => TableOperation.InsertOrReplace(x));
         }
 
-        public virtual string Delete(T entity)
-        {
-            return Execute(TableOperation.Delete(entity));
-        }
-
         public async virtual Task<string> DeleteAsync(T entity)
         {
             return await ExecuteAsync(TableOperation.Delete(entity));
-        }
-        public virtual void Delete(IEnumerable<T> entities)
-        {
-            ExecuteBatch(entities, x => TableOperation.Delete(x));
         }
 
         public async virtual Task DeleteAsync(IEnumerable<T> entities)
@@ -184,34 +111,14 @@ namespace Veggerby.Storage.Azure.Table
             await ExecuteBatchAsync(entities, x => TableOperation.Delete(x));
         }
 
-        public virtual IEnumerable<T> List(string partitionKey)
-        {
-            return new ListPartitionStorageQuery<T>(partitionKey).ExecuteOn(Table);
-        }
-
         public async virtual Task<IEnumerable<T>> ListAsync(string partitionKey, int count = -1)
         {
             return await new ListPartitionStorageQuery<T>(partitionKey).ExecuteOnAsync(Table, count);
         }
 
-        public virtual IEnumerable<T> ListByRowKey(string rowKey)
-        {
-            return new ListRowsStorageQuery<T>(rowKey).ExecuteOn(Table);
-        }
-
         public async virtual Task<IEnumerable<T>> ListByRowKeyAsync(string rowKey, int count = -1)
         {
             return await new ListRowsStorageQuery<T>(rowKey).ExecuteOnAsync(Table, count);
-        }
-
-        public virtual IEnumerable<T> Get(IEnumerable<TableEntityKey> keys)
-        {
-            if (keys == null || !keys.Any())
-            {
-                return Enumerable.Empty<T>();
-            }
-
-            return new MultipleEntityStorageQuery<T>(keys).ExecuteOn(Table);
         }
 
         public async virtual Task<IEnumerable<T>> GetAsync(IEnumerable<TableEntityKey> keys)
