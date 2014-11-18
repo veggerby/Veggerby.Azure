@@ -70,6 +70,9 @@
     <Compile Include="Blob\BlobStorage.cs" />
     <Compile Include="Blob\IBlobStorage.cs" />
     <Compile Include="Queue\GetQueueItemException.cs" />
+    <Compile Include="Queue\PoisonMessage.cs" />
+    <Compile Include="Queue\PoisonMessageQueueStorage.cs" />
+    <Compile Include="Queue\IPoisonMessageQueueStorage.cs" />
     <Compile Include="Queue\QueueStorage.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Queue\IQueueStorage.cs" />

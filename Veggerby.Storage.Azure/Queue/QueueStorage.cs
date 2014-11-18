@@ -8,8 +8,22 @@ using Newtonsoft.Json;
 
 namespace Veggerby.Storage.Azure.Queue
 {
+    public class QueueStorageSettings
+    {
+        public static QueueStorageSettings Default = new QueueStorageSettings
+        {
+            VisibilityTimeout = TimeSpan.FromMinutes(1), 
+            MaxDequeueCount = 5
+        };
+
+        public TimeSpan VisibilityTimeout { get; set; }
+        public int MaxDequeueCount { get; set; }
+    }
+
     public class QueueStorage<T> : IQueueStorage, IQueueStorage<T> where T : new()
     {
+        private readonly IPoisonMessageQueueStorage _poisonMessageQueue;
+        private readonly QueueStorageSettings _settings;
         private readonly CloudQueue _queue;
 
         private static JsonSerializerSettings _Settings = new JsonSerializerSettings
@@ -19,14 +33,17 @@ namespace Veggerby.Storage.Azure.Queue
             ReferenceLoopHandling = ReferenceLoopHandling.Ignore
         };
 
-        public QueueStorage(string queueName = null, string connectionString = null, StorageInitializeManager storageInitializeManager = null)
+        public QueueStorage(string queueName = null, string connectionString = null, StorageInitializeManager storageInitializeManager = null, IPoisonMessageQueueStorage poisonMessageQueue = null, QueueStorageSettings settings)
         {
+            _poisonMessageQueue = poisonMessageQueue;
+            _settings = settings;
+
             var storageAccount = !string.IsNullOrEmpty(connectionString)
                 ? CloudStorageAccount.Parse(connectionString)
                 : CloudStorageAccount.DevelopmentStorageAccount;
             var queueClient = storageAccount.CreateCloudQueueClient();
 
-            queueName = queueName ?? (typeof (T).Name.ToLowerInvariant());
+            queueName = queueName ?? (typeof(T).Name.ToLowerInvariant());
 
             _queue = queueClient.GetQueueReference(queueName);
 
@@ -42,7 +59,7 @@ namespace Veggerby.Storage.Azure.Queue
         public async Task InitializeAsync()
         {
             await Queue.CreateIfNotExistsAsync();
-        } 
+        }
 
         protected CloudQueue Queue
         {
@@ -56,32 +73,52 @@ namespace Veggerby.Storage.Azure.Queue
 
         public async Task<bool> AddAsync(T obj)
         {
-            CloudQueueMessage message = null;
-            message = new CloudQueueMessage(JsonConvert.SerializeObject(obj, _Settings));
+            var message = new CloudQueueMessage(JsonConvert.SerializeObject(obj, _Settings));
             await Queue.AddMessageAsync(message);
             return true;
         }
 
         public async Task<QueueItem<T>> GetAsync()
         {
-            var message = await Queue.GetMessageAsync(TimeSpan.FromMinutes(5), null, null);
-            if (message == null)
+            while (true)
             {
-                return null;
-            }
+                var message = await Queue.GetMessageAsync(
+                    (_settings ?? QueueStorageSettings.Default).VisibilityTimeout, 
+                    null,
+                    null);
 
-            try
-            {
-                var item = JsonConvert.DeserializeObject<T>(message.AsString, _Settings);
-                return new QueueItem<T>
+                if (message == null)
                 {
-                    Message = message,
-                    Item = item
-                };
-            }
-            catch (Exception e)
-            {
-                throw new GetQueueItemException("Failed to get message from queue", e);
+                    return null;
+                }
+
+                if (message.DequeueCount >= (_settings ?? QueueStorageSettings.Default).MaxDequeueCount)
+                {
+                    var poisonMessage = new PoisonMessage
+                    {
+                        OriginalInsertionTimeUtc = message.InsertionTime, 
+                        SourceQueue = Queue.Name, 
+                        SourceMessage = message.AsString
+                    };
+
+                    await _poisonMessageQueue.AddAsync(poisonMessage);
+                    await Queue.DeleteMessageAsync(message);
+
+                    continue;
+                }
+
+                try
+                {
+                    var item = JsonConvert.DeserializeObject<T>(message.AsString, _Settings);
+                    return new QueueItem<T>
+                    {
+                        Message = message, Item = item
+                    };
+                }
+                catch (Exception e)
+                {
+                    throw new GetQueueItemException("Failed to get message from queue", e);
+                }
             }
         }
 
@@ -105,19 +142,19 @@ namespace Veggerby.Storage.Azure.Queue
 
             result.AverageTimeOnQueue = messages.Any()
                 ? TimeSpan.FromTicks((long)Math.Round(messages.Where(x => x.InsertionTime != null).Average(x => DateTimeOffset.UtcNow.Ticks - x.InsertionTime.Value.Ticks)))
-                : (TimeSpan?) null;
+                : (TimeSpan?)null;
 
             result.MaxTimeOnQueue = messages.Any()
                 ? TimeSpan.FromTicks((long)Math.Round(messages.Where(x => x.InsertionTime != null).Max(x => 1.0D * DateTimeOffset.UtcNow.Ticks - x.InsertionTime.Value.Ticks)))
-                : (TimeSpan?) null;
+                : (TimeSpan?)null;
 
             result.MaxDequeueCount = messages.Any()
                 ? messages.Max(x => x.DequeueCount)
-                : (int?) null;
+                : (int?)null;
 
             result.AverageDequeueCount = messages.Any()
                 ? messages.Average(x => x.DequeueCount)
-                : (double?) null;
+                : (double?)null;
 
             return result;
         }
