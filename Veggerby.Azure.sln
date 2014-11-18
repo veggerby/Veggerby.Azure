@@ -3,9 +3,16 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
 VisualStudioVersion = 12.0.30723.0
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Veggerby.Identity.Azure", "Veggerby.Identity.Azure\Veggerby.Identity.Azure.csproj", "{7D5A6B3A-37CB-41F8-A3CE-2D878AC83B09}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Veggerby.Identity.Azure", "src\Veggerby.Identity.Azure\Veggerby.Identity.Azure.csproj", "{7D5A6B3A-37CB-41F8-A3CE-2D878AC83B09}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Veggerby.Storage.Azure", "Veggerby.Storage.Azure\Veggerby.Storage.Azure.csproj", "{C2521044-AE5C-40C1-80E8-FAF5DEC7A4ED}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Veggerby.Storage.Azure", "src\Veggerby.Storage.Azure\Veggerby.Storage.Azure.csproj", "{C2521044-AE5C-40C1-80E8-FAF5DEC7A4ED}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{9BB145CA-521C-47CE-B173-3460281412D3}"
+	ProjectSection(SolutionItems) = preProject
+		.nuget\NuGet.Config = .nuget\NuGet.Config
+		.nuget\NuGet.exe = .nuget\NuGet.exe
+		.nuget\NuGet.targets = .nuget\NuGet.targets
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
