@@ -45,7 +45,7 @@ namespace Veggerby.Storage.Azure.Table.Query
                 return left;
             }
 
-            return TableQuery.CombineFilters(left, TableOperators.Or, right);
+            return left.Or(right);
         }
     }
 }

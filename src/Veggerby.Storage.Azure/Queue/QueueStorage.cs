@@ -33,7 +33,7 @@ namespace Veggerby.Storage.Azure.Queue
             ReferenceLoopHandling = ReferenceLoopHandling.Ignore
         };
 
-        public QueueStorage(string queueName = null, string connectionString = null, StorageInitializeManager storageInitializeManager = null, IPoisonMessageQueueStorage poisonMessageQueue = null, QueueStorageSettings settings)
+        public QueueStorage(string queueName = null, string connectionString = null, StorageInitializeManager storageInitializeManager = null, IPoisonMessageQueueStorage poisonMessageQueue = null, QueueStorageSettings settings = null)
         {
             _poisonMessageQueue = poisonMessageQueue;
             _settings = settings;

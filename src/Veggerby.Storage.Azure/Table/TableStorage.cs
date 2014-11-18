@@ -14,8 +14,6 @@ namespace Veggerby.Storage.Azure.Table
         private readonly CloudTable _Table;
         private readonly CloudTableClient _cloudTableClient;
 
-        public CloudTableClient CloudTableClient { get { return _cloudTableClient; } }
-
         public TableStorage(string tableName = null, string connectionString = null, StorageInitializeManager storageInitializeManager = null)
         {
             var storageAccount = !string.IsNullOrEmpty(connectionString)

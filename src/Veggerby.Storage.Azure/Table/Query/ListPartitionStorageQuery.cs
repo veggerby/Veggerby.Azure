@@ -6,7 +6,8 @@ namespace Veggerby.Storage.Azure.Table.Query
     {
         public ListPartitionStorageQuery(string partitionKey)
         {
-            Query = Query.Where(TableQuery.GenerateFilterCondition("PartitionKey", QueryComparisons.Equal, partitionKey));
+            Query = Query.Where(
+                "PartitionKey".Equal(partitionKey));
         }
     }
 }

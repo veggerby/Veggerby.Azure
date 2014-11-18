@@ -90,5 +90,6 @@ The following queries are implemented by default:
 * [MultipleEntityStorageQuery](src/Veggerby.Storage.Azure/Table/Query/MultipleEntityStorageQuery.cs) - get multiple entities by PartitionKey and RowKey (using [TableEntityKey](src/Veggerby.Storage.Azure/Table/TableEntityKey.cs) class, see TableStorage.GetAsync() overload)
 * [MultiplePartitionStorageQuery](src/Veggerby.Storage.Azure/Table/Query/MultiplePartitionStorageQuery.cs) - list entities in multiple partitions (*performance impact*)
 * [MultipleRowKeysStorageQuery](src/Veggerby.Storage.Azure/Table/Query/MultipleRowKeysStorageQuery.cs) - list entities with multiple RowKeys (*significant performance impact*)
+* [DateRangeStorageQuery](src/Veggerby.Storage.Azure/Table/Query/DateRangeStorageQuery.cs) - list entities with having a specific property within a date/time range
 
-By default the MultiplePartitionStorageQuery and MultipleRowKeysStorageQuery queries are not exposed on the TableStorage class because of the significant performance impact (although this also applies to ListRowsStorageQuery).
+By default the MultiplePartitionStorageQuery, MultipleRowKeysStorageQuery and DateRangeStorageQuery queries are not exposed on the TableStorage class because of the significant performance impact (although this also applies to ListRowsStorageQuery).

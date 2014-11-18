@@ -17,12 +17,9 @@ namespace Veggerby.Storage.Azure.Table
 
         public static string GetTableName(this Type type)
         {
-            if (type.Name.EndsWith("Entity"))
-            {
-                return type.Name.Substring(0, type.Name.Length - 6).ToLowerInvariant();
-            }
-
-            return type.Name.ToLowerInvariant();
+            return type.Name.EndsWith("Entity") 
+                ? type.Name.Substring(0, type.Name.Length - 6).ToLowerInvariant() 
+                : type.Name.ToLowerInvariant();
         }
 
         public static TableEntityKey ToTableEntityKey(this ITableEntity entity)

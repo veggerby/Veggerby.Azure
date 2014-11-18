@@ -12,10 +12,7 @@ namespace Veggerby.Storage.Azure.Table.Query
 
         protected override string GetPart(TableEntityKey key)
         {
-            return TableQuery.CombineFilters(
-                TableQuery.GenerateFilterCondition("PartitionKey", QueryComparisons.Equal, key.PartitionKey),
-                TableOperators.And,
-                TableQuery.GenerateFilterCondition("RowKey", QueryComparisons.Equal, key.RowKey));
+            return "PartitionKey".Equal(key.PartitionKey).And("RowKey".Equal(key.RowKey));
         }
     }
 }

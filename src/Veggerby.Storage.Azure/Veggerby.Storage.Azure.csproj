@@ -82,6 +82,8 @@
     <Compile Include="StorageInitializeManager.cs" />
     <Compile Include="Table\Extensions.cs" />
     <Compile Include="Table\ITableStorage.cs" />
+    <Compile Include="Table\Query\DateRangeStorageQuery.cs" />
+    <Compile Include="Table\Query\QueryExtensions.cs" />
     <Compile Include="Table\Query\ListPartitionStorageQuery.cs" />
     <Compile Include="Table\Query\ListRowsStorageQuery.cs" />
     <Compile Include="Table\Query\MultiPartStorageQuery.cs" />
