@@ -1,0 +1,18 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
+    <metadata>
+        <id>Veggerby.Storage.Azure</id>
+        <version>0.1.0</version>
+        <title>Azure Storage</title>
+        <authors>Jesper Veggerby</authors>
+        <requireLicenseAcceptance>false</requireLicenseAcceptance>
+        <description>Azure Storage abstractions.</description>
+        <dependencies>
+            <dependency id="WindowsAzure.Storage" version="4.3.0" />
+        </dependencies>
+    </metadata>
+    <files>
+        <file src="..\src\Veggerby.Storage.Azure\bin\Release\Veggerby.Storage.Azure.dll" target="lib\net45\Veggerby.Storage.Azure.dll" />
+        <file src="..\src\Veggerby.Storage.Azure\bin\Release\Veggerby.Storage.Azure.pdb" target="lib\net45\Veggerby.Storage.Azure.pdb" />
+    </files>
+</package>
