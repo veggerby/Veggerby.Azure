@@ -11,14 +11,15 @@ namespace Veggerby.Storage.Azure.Blob
     public class BlobStorage : IBlobStorage
     {
         private readonly CloudBlobContainer _blobContainer;
+        private readonly CloudBlobClient _blobClient;
 
         public BlobStorage(string blobContainer, string connectionString = null, StorageInitializeManager storageInitializeManager = null)
         {
             var storageAccount = !string.IsNullOrEmpty(connectionString)
                 ? CloudStorageAccount.Parse(connectionString)
                 : CloudStorageAccount.DevelopmentStorageAccount;
-            var blobClient = storageAccount.CreateCloudBlobClient();
-            _blobContainer = blobClient.GetContainerReference(blobContainer);
+            _blobClient = storageAccount.CreateCloudBlobClient();
+            _blobContainer = _blobClient.GetContainerReference(blobContainer);
 
             if (storageInitializeManager == null || storageInitializeManager.HasBeenInitialized(blobContainer))
             {
@@ -77,8 +78,8 @@ namespace Veggerby.Storage.Azure.Blob
 
         public async Task<Stream> GetAsync(Uri uri)
         {
-            var block = new CloudBlockBlob(uri);
-            return await GetAsync(block);
+            var block = await _blobClient.GetBlobReferenceFromServerAsync(uri);
+            return await GetAsync(block as CloudBlockBlob);
         }
 
         public async Task<Stream> GetAsync(string directory, string filename)
