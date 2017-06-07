@@ -27,7 +27,7 @@ namespace Veggerby.Storage.Azure.Table.Query
             else
             {
                 Query = Query.Where(
-                    fieldId.GreaterThanOrEqual(minValue.Value).Or(fieldId.LessThanOrEqual(maxValue.Value)));
+                    fieldId.GreaterThanOrEqual(minValue.Value).And(fieldId.LessThanOrEqual(maxValue.Value)));
             }
         }
     }
